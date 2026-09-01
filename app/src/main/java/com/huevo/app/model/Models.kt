@@ -49,7 +49,8 @@ enum class Goal(val label: String) {
     QUIT_COMPLETELY("Dejarlo por completo"),
     REDUCE_FREQUENCY("Reducir la frecuencia"),
     REGAIN_CONTROL("Recuperar el control"),
-    IMPROVE_DISCIPLINE("Mejorar mi disciplina")
+    IMPROVE_DISCIPLINE("Mejorar mi disciplina"),
+    OTHER("Otro objetivo")
 }
 
 enum class PornUsage(val label: String) {
