@@ -12,6 +12,6 @@ val HuevoShapes = Shapes(
     extraLarge = RoundedCornerShape(36.dp)
 )
 
-val CardCorner = RoundedCornerShape(24.dp)
-val ButtonCorner = RoundedCornerShape(18.dp)
+val CardCorner = RoundedCornerShape(28.dp)
+val ButtonCorner = RoundedCornerShape(50)
 val ChipCorner = RoundedCornerShape(50)

@@ -1,6 +1,7 @@
 package com.huevo.app.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.huevo.app.ui.theme.BrownText
 
@@ -24,13 +26,14 @@ fun OnboardingTopBar(
     step: Int,
     totalSteps: Int,
     onBack: (() -> Unit)?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentColor: Color = BrownText
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Filled.ChevronLeft, contentDescription = "Atrás", tint = BrownText)
+                    Icon(Icons.Filled.ChevronLeft, contentDescription = "Atrás", tint = contentColor)
                 }
             } else {
                 androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(48.dp))
@@ -39,18 +42,17 @@ fun OnboardingTopBar(
             Text(
                 "$step / $totalSteps",
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = contentColor
             )
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
         }
-        HuevoProgressBar(
-            progress = step / totalSteps.toFloat(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp)
-                .height(6.dp),
-            height = 6.dp
-        )
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), contentAlignment = Alignment.Center) {
+            HuevoProgressBar(
+                progress = step / totalSteps.toFloat(),
+                modifier = Modifier.fillMaxWidth(0.72f),
+                height = 10.dp
+            )
+        }
     }
 }
 

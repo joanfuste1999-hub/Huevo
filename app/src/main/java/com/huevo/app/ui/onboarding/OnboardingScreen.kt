@@ -1,6 +1,7 @@
 package com.huevo.app.ui.onboarding
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +20,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.huevo.app.model.CompanionExpression
 import com.huevo.app.model.CompanionStage
@@ -58,7 +67,15 @@ import com.huevo.app.ui.components.OnboardingTopBar
 import com.huevo.app.ui.components.PrimaryButton
 import com.huevo.app.ui.components.SelectableChip
 import com.huevo.app.ui.components.SelectableOptionRow
+import com.huevo.app.ui.theme.BrownText
+import com.huevo.app.ui.theme.GoalIconBlue
+import com.huevo.app.ui.theme.GoalIconGold
+import com.huevo.app.ui.theme.GoalIconPink
+import com.huevo.app.ui.theme.GoalIconRed
+import com.huevo.app.ui.theme.GoalIconViolet
 import com.huevo.app.ui.theme.MintAccent
+import com.huevo.app.ui.theme.NavySubtext
+import com.huevo.app.ui.theme.NavyText
 import com.huevo.app.ui.theme.OrangePrimary
 import com.huevo.app.ui.theme.PeachSurface
 
@@ -79,7 +96,8 @@ fun OnboardingScreen(
         OnboardingTopBar(
             step = uiState.step,
             totalSteps = ONBOARDING_TOTAL_STEPS,
-            onBack = if (uiState.step > 1) viewModel::goBack else null
+            onBack = if (uiState.step > 1) viewModel::goBack else null,
+            contentColor = if (uiState.step == 5) NavyText else BrownText
         )
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -103,6 +121,7 @@ fun OnboardingScreen(
         PrimaryButton(
             text = if (uiState.step == 1) "Comenzar" else if (uiState.step == ONBOARDING_TOTAL_STEPS) "Comenzar mi viaje" else "Continuar",
             enabled = uiState.canContinue,
+            trailingIcon = if (uiState.step == 5) Icons.Filled.ArrowForward else null,
             onClick = {
                 if (uiState.step == ONBOARDING_TOTAL_STEPS) {
                     viewModel.finishOnboarding(onFinished)
@@ -111,7 +130,11 @@ fun OnboardingScreen(
                 }
             }
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        if (uiState.step == 5) {
+            GoalsBottomDecoration()
+        } else {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
 
@@ -205,19 +228,119 @@ private fun StepFrequency(selected: Frequency?, onSelect: (Frequency) -> Unit) {
     }
 }
 
+private val goalIcons: Map<Goal, Pair<androidx.compose.ui.graphics.vector.ImageVector, Color>> = mapOf(
+    Goal.QUIT_COMPLETELY to (Icons.Filled.CheckCircle to GoalIconRed),
+    Goal.REDUCE_FREQUENCY to (Icons.Filled.TrendingDown to GoalIconBlue),
+    Goal.REGAIN_CONTROL to (Icons.Filled.Psychology to GoalIconPink),
+    Goal.IMPROVE_DISCIPLINE to (Icons.Filled.Star to GoalIconGold),
+    Goal.OTHER to (Icons.Filled.MoreHoriz to GoalIconViolet)
+)
+
 @Composable
 private fun StepGoals(selected: Set<Goal>, onToggle: (Goal) -> Unit) {
-    StepScaffold(title = "¿Cuál es tu objetivo principal?", subtitle = "Elige lo que mejor te represente.") {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(androidx.compose.foundation.rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            "¿Cuál es tu\nobjetivo principal?",
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 30.sp,
+                lineHeight = 34.sp,
+                color = NavyText
+            ),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            "Elige lo que mejor te represente.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = NavySubtext,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Goal.entries.forEach { option ->
+                val (icon, tint) = goalIcons.getValue(option)
                 SelectableOptionRow(
                     label = option.label,
                     selected = selected.contains(option),
                     onClick = { onToggle(option) },
-                    multiSelect = true
+                    multiSelect = true,
+                    icon = icon,
+                    iconTint = tint
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun GoalsBottomDecoration() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+    ) {
+        androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+
+            drawCircle(color = Color(0xFFFFF3E2), radius = w * 0.22f, center = androidx.compose.ui.geometry.Offset(w * 0.18f, h * 0.22f))
+            drawCircle(color = Color(0xFFFFF3E2), radius = w * 0.14f, center = androidx.compose.ui.geometry.Offset(w * 0.62f, h * 0.12f))
+
+            val backHill = androidx.compose.ui.graphics.Path().apply {
+                moveTo(0f, h * 0.62f)
+                quadraticBezierTo(w * 0.25f, h * 0.42f, w * 0.55f, h * 0.58f)
+                quadraticBezierTo(w * 0.8f, h * 0.72f, w, h * 0.5f)
+                lineTo(w, h)
+                lineTo(0f, h)
+                close()
+            }
+            drawPath(backHill, color = Color(0xFFF3E3CC))
+
+            val frontHill = androidx.compose.ui.graphics.Path().apply {
+                moveTo(0f, h * 0.78f)
+                quadraticBezierTo(w * 0.3f, h * 0.6f, w * 0.6f, h * 0.8f)
+                quadraticBezierTo(w * 0.85f, h * 0.95f, w, h * 0.75f)
+                lineTo(w, h)
+                lineTo(0f, h)
+                close()
+            }
+            drawPath(frontHill, color = Color(0xFFFFEBD2))
+        }
+
+        Icon(
+            Icons.Filled.Spa,
+            contentDescription = null,
+            tint = Color(0xFF8FB88A),
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 20.dp, bottom = 30.dp)
+                .size(26.dp)
+        )
+
+        Icon(
+            Icons.Filled.AutoAwesome,
+            contentDescription = null,
+            tint = Color(0xFFF6C85F),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 12.dp, bottom = 88.dp)
+                .size(18.dp)
+        )
+
+        CompanionView(
+            stage = CompanionStage.YOUNG_CHICK,
+            expression = CompanionExpression.HAPPY,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 24.dp, bottom = 8.dp)
+                .size(76.dp)
+        )
     }
 }
 

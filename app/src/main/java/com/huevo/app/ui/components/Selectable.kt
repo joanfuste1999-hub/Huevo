@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +26,7 @@ import com.huevo.app.ui.theme.CardCorner
 import com.huevo.app.ui.theme.ChipCorner
 import com.huevo.app.ui.theme.OrangePrimary
 import com.huevo.app.ui.theme.PeachSurface
+import com.huevo.app.ui.theme.SelectedCardTint
 
 /** Fila de opción para preguntas de selección única (radio) o múltiple (check). */
 @Composable
@@ -37,17 +36,17 @@ fun SelectableOptionRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     multiSelect: Boolean = false,
-    description: String? = null
+    description: String? = null,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    iconTint: Color = OrangePrimary
 ) {
     val shape = CardCorner
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(if (selected) PeachSurface else MaterialTheme.colorScheme.surface)
-            .then(
-                if (!selected) Modifier.outlineBorder(shape) else Modifier
-            )
+            .background(if (selected) SelectedCardTint else MaterialTheme.colorScheme.surface)
+            .outlineBorder(shape, if (selected) OrangePrimary.copy(alpha = 0.5f) else PeachSurface)
             .let {
                 if (multiSelect) {
                     it.toggleable(value = selected, onValueChange = { onClick() })
@@ -55,33 +54,51 @@ fun SelectableOptionRow(
                     it.selectable(selected = selected, onClick = onClick)
                 }
             }
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 16.dp, vertical = 18.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.titleMedium)
-            if (description != null) {
-                Text(description, style = MaterialTheme.typography.bodySmall)
+        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(24.dp))
+                }
+                androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
+            }
+            androidx.compose.foundation.layout.Column {
+                Text(label, style = MaterialTheme.typography.titleMedium)
+                if (description != null) {
+                    Text(description, style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
-        SelectionIndicator(selected = selected, multiSelect = multiSelect)
+        SelectionIndicator(selected = selected)
     }
 }
 
 @Composable
-private fun SelectionIndicator(selected: Boolean, multiSelect: Boolean) {
-    val shape = if (multiSelect) MaterialTheme.shapes.small else CircleShape
+private fun SelectionIndicator(selected: Boolean) {
     Box(
         modifier = Modifier
-            .size(24.dp)
-            .clip(shape)
+            .size(26.dp)
+            .clip(CircleShape)
             .background(if (selected) OrangePrimary else Color.Transparent)
-            .outlineBorder(shape, if (selected) OrangePrimary else PeachSurface, widthOverride = if (selected) 0.dp else 2.dp),
+            .outlineBorder(CircleShape, if (selected) OrangePrimary else PeachSurface, widthOverride = if (selected) 0.dp else 2.dp),
         contentAlignment = Alignment.Center
     ) {
         if (selected) {
-            Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+            Box(
+                modifier = Modifier
+                    .size(9.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+            )
         }
     }
 }
